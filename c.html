@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo da cobrinha</title>
+    <style>
+        body{
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-image:url(./background.svg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        
+        }
+        #stage{
+            border-radius:10px;
+        }
+        div{
+           
+            margin-left:375px;
+            padding:10px;
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width:60%;
+        }
+        h1{
+           color:#FF6A83; 
+           font-size:20px;
+        }
+
+    </style>
+</head>
+<body>
+    <audio id="coin" src="coin.wav"></audio>
+   
+ <div>
+    <h1>Pontuação</h1>
+    <canvas id="stage" width="600" height="600"></canvas>
+    <script type="text/javascript">
+        
+        window.onload = function(){ //esperar carregar
+ 
+            var stage = document.getElementById('stage');
+            var ctx = stage.getContext("2d"); //renderização
+            const audio = document.getElementById("coin");
+            document.addEventListener("keydown", keyPush); 
+            setInterval(game, 170); //defini o intervalo para a função ser chamada
+ 
+            const vel = 1; //quantas casas a cobra anda quando a função game for ativada
+            
+            var vx = vy = 0; //velocidade
+            var px =10;     //ponto de partida cobra
+            var py = 10;    //ponto de partida cobra
+            var tp = 30;    //tamanho do quadradinho
+            var qp = 20;    //quantidade de quadradinhos
+            var ax=ay=15;   //posiçao inicial da maça
+            // var dx = 0;  // direcao x (direita=1  esquerda=-1)
+            // var dy = 0;  // direcao y (acima = -1  abaixo = 1)
+ 
+            var trail = []; //começa com o rastro vazio
+            tail = 5;       //tamanho da cauda
+ 
+            function game(){ //toda vez que a cobra anda, repinta a tela. e atualiza a posição da ponta da cobra
+                p0x = px; //salva a ultima posição 
+                p0y = py;
+                px += vx;   //posiçao da cobra mais a velocidade
+                py += vy;
+                dx = px-p0x;
+                dy = py-p0y;
+                if (px <0) {       //testes para não sair da tela 
+                    px = qp-1;      
+                }
+                if (px > qp-1) {
+                    px = 0;
+                }
+                if (py < 0) {
+                    py = qp-1;
+                }
+                if (py > qp-1) {
+                    py = 0;
+                }
+ 
+                ctx.fillStyle = "white"; //definindo o preenchimento
+                ctx.fillRect(0,0, stage.width, stage.height); //começa no ponto 00 e preenche todo o stage
+ 
+                ctx.fillStyle = "green";
+                ctx.fillRect(ax*tp, ay*tp, tp,tp);  //pinta a maça na posição definida. posiçao * tamanho da peça, tp tp pinta toda a peça
+ 
+                ctx.fillStyle = "pink";
+                for (var i = 0; i < trail.length; i++) { //tamanho do rastro
+                    ctx.fillRect(trail[i].x*tp, trail[i].y*tp, tp-1,tp-1); //pintando o elemtento do rastro
+                    if (trail[i].x == px && trail[i].y == py)   //testa se o rastro bate na cebeça da cobra
+                    {
+                        vx = vy=0;  //para a cobra
+                        tail =2;    
+                    }
+                }
+ 
+                trail.push({x:px,y:py})    //posiçao atual da cabeça, pega posiçao atual e coloca em x y
+                while (trail.length > tail) { 
+                    trail.shift();  //tira o primeiro elemento do arrey
+                }
+                
+                var pont = document.querySelector("h1");
+                function pontuou() {
+                // pont.innerHTML = 'Pontuação: \n' + (dy);
+                pont.innerHTML = 'Pontuação: \n' + (trail.length - 2);
+
+                }
+
+                
+                    if (ax==px && ay==py){ //posicao da maça for igual a posiçao da cabeça
+                        tail++; //mais um elemento na cauda
+                        audio.play(); //som da colisão
+                        ax = Math.floor(Math.random()*qp); //reposiciona a maça
+                        ay = Math.floor(Math.random()*qp); //.floor arredonda pra baixo
+                    }
+               
+                    
+                   pontuou(); //função da pontuação
+            }
+ 
+            function keyPush(event){    //testa as teclas
+ 
+                switch (event.keyCode) {
+                    case 37: // Left
+                        if(dx == 1){ //testa se ela não vai de encontro a ela mesma 
+                            break;
+                        }else{
+                        vx = -vel;
+                        vy = 0;}
+                        break;
+                    case 38: // up
+                    if(dy== 1){
+                        break;
+                    }else{
+                        vx = 0;
+                        vy = -vel;}
+                        break;
+                    case 39: // right
+                        if(dx == -1){
+                            break;
+                        }else{
+                        vx = vel;
+                        vy = 0;}
+                        break;
+                    case 40: // down
+                        if(dy == -1){
+                            break;
+                        }else{
+                        vx = 0;
+                        vy = vel;}
+                        break;  
+                        
+                    case 32: //space key
+                        vx = vy=0;
+                        break;
+                    default:
+                        
+                        break;
+                }
+ 
+ 
+            }
+ 
+        }
+      
+    </script>
+
+</div>
+</body>
+</html>
